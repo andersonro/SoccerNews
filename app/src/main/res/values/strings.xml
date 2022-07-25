@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">SoccerNews</string>
+    <string name="title_news">News</string>
+    <string name="title_favorite">Favorite</string>
+    <string name="img_news">img_news</string>
+    <string name="btn_title_open_link">Open Link</string>
+</resources>
