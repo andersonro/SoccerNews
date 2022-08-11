@@ -1,10 +1,10 @@
 package com.example.soccernews.ui.news
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.soccernews.databinding.FragmentNewsBinding
@@ -18,8 +18,8 @@ class NewsFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-    private val viewModel: NewsViewModel by viewModel()
-    private val adapter by lazy { NewsAdapter(context!!, emptyList()) }
+    private val newsViewModel: NewsViewModel by viewModel()
+    private val adapter by lazy { NewsAdapter(context!!) }
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -35,28 +35,48 @@ class NewsFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
         recyclerView.adapter = adapter
 
-        viewModel.getNewsService()
-        viewModel.state.observe(viewLifecycleOwner){
-            when(it){
-                NewsViewModel.State.Loading -> {
-                    Log.e("FRAGMENT", "Carregando...")
-                }
-                is NewsViewModel.State.Error -> {
-                    Log.e("FRAGMENT_ERROR", it.error.toString())
-                }
-                is NewsViewModel.State.Success -> {
-                    Log.e("FRAGMENT_SUCCESS", it.toString())
-                    //recyclerView.adapter = NewsAdapter(context!!, it.list)
-                    adapter
-                }
-            }
+        listenerNewsObserve()
+        listenerNewsRefresh()
+
+        adapter.listenerFavorite = {
+            Toast.makeText(context!!, "Teste", Toast.LENGTH_SHORT).show()
         }
 
         return root
     }
 
+    override fun onStart() {
+        super.onStart()
+        listenerNews()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun listenerNews(){
+        newsViewModel.getNewsService()
+    }
+
+    private fun listenerNewsRefresh(){
+        binding.srplMain.setOnRefreshListener(this::listenerNews    )
+    }
+
+    private fun listenerNewsObserve(){
+        newsViewModel.state.observe(viewLifecycleOwner){
+            when(it){
+                NewsViewModel.State.Loading -> {
+                    binding.srplMain.isRefreshing = true
+                }
+                is NewsViewModel.State.Error -> {
+                    binding.srplMain.isRefreshing = false
+                }
+                is NewsViewModel.State.Success -> {
+                    binding.srplMain.isRefreshing = false
+                    adapter.submitList(it.list)
+                }
+            }
+        }
     }
 }

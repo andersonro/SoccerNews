@@ -7,13 +7,15 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.soccernews.databinding.NewsItemBinding
 import com.example.soccernews.data.model.News
 
-class NewsAdapter(private val context: Context, val dataSet: List<News>) :
-    RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
+class NewsAdapter(private val context: Context) :
+    ListAdapter<News, NewsAdapter.ViewHolder>(DiffCallback()) {
 
     var listenerFavorite: (View) -> Unit = {}
 
@@ -51,14 +53,20 @@ class NewsAdapter(private val context: Context, val dataSet: List<News>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val inflate = LayoutInflater.from(parent.context)
-        val binding = NewsItemBinding.inflate(inflate, parent, false)
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = NewsItemBinding.inflate(inflater, parent, false)
         return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        viewHolder.bind(dataSet[position])
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(getItem(position))
     }
 
-    override fun getItemCount() = dataSet.size
+
+}
+
+class DiffCallback: DiffUtil.ItemCallback<News>() {
+    override fun areItemsTheSame(oldItem: News, newItem: News) = oldItem == newItem
+    override fun areContentsTheSame(oldItem: News, newItem: News) = oldItem.id == newItem.id
+
 }
