@@ -5,14 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.soccernews.databinding.FragmentNewsBinding
-import com.example.soccernews.domain.News
+import com.example.soccernews.presentation.NewsViewModel
 import com.example.soccernews.ui.adapters.NewsAdapter
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class NewsFragment : Fragment() {
 
@@ -20,13 +18,14 @@ class NewsFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+    private val viewModel: NewsViewModel by viewModel()
+    private val adapter by lazy { NewsAdapter(context!!, emptyList()) }
 
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        val newsViewModel = ViewModelProvider(this).get(NewsViewModel::class.java)
 
         _binding = FragmentNewsBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -34,9 +33,23 @@ class NewsFragment : Fragment() {
         val recyclerView = binding.rvNews
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+        recyclerView.adapter = adapter
 
-        newsViewModel.getNews.observe(viewLifecycleOwner) {
-            recyclerView.adapter = NewsAdapter(it)
+        viewModel.getNewsService()
+        viewModel.state.observe(viewLifecycleOwner){
+            when(it){
+                NewsViewModel.State.Loading -> {
+                    Log.e("FRAGMENT", "Carregando...")
+                }
+                is NewsViewModel.State.Error -> {
+                    Log.e("FRAGMENT_ERROR", it.error.toString())
+                }
+                is NewsViewModel.State.Success -> {
+                    Log.e("FRAGMENT_SUCCESS", it.toString())
+                    //recyclerView.adapter = NewsAdapter(context!!, it.list)
+                    adapter
+                }
+            }
         }
 
         return root
