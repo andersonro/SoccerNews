@@ -21,14 +21,14 @@ object DataModules {
     private const val TAG_OKHTTP = "OkHTTP"
 
     fun load(){
-        loadKoinModules(networkModule() + repositoryModule())
+        loadKoinModules(networkModule() + repositoryModule() + dataBaseModule())
     }
 
     private fun networkModule(): Module {
         return module {
             single {
                 val interceptor = HttpLoggingInterceptor {
-                    Log.e(TAG_OKHTTP, "networkModule: $it")
+                    //Log.e(TAG_OKHTTP, "networkModule: $it")
                 }
 
                 interceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -50,17 +50,23 @@ object DataModules {
     }
 
     private fun repositoryModule(): Module {
-        Log.e(TAG_OKHTTP, "1")
         return module {
             single<NewsRepository> {
-                NewsRepositoryImpl(get())
+                NewsRepositoryImpl(get(), get())
+            }
+        }
+    }
+
+    private fun dataBaseModule(): Module {
+        return module {
+            single {
+                AppDatabase.getinstance(androidApplication())
             }
         }
     }
 
     private inline fun <reified T> createService(client: OkHttpClient,
                                                  factory: GsonConverterFactory): T {
-        Log.e(TAG_OKHTTP, "3")
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)

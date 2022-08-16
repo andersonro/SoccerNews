@@ -6,6 +6,6 @@ import kotlinx.coroutines.flow.Flow
 interface NewsRepository {
 
     suspend fun getListNewsService(): Flow<List<News>>
-    //suspend fun getListNewsFavorites(): Flow<List<News>>
-    //suspend fun save(news: News)
+    suspend fun getListNewsFavorites(): Flow<List<News>>
+    suspend fun save(news: News): Flow<Long>
 }

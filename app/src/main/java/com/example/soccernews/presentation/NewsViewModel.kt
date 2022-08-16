@@ -14,29 +14,43 @@ class NewsViewModel(private val newsUseCase: NewsUseCase) : ViewModel() {
     private val _state = MutableLiveData<State>()
     val state: LiveData<State> = _state
 
-    //@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun getNewsService() {
-        Log.e("getNewsService", "getNewsService")
+
         viewModelScope.launch {
-            Log.e("launch", "launch")
             newsUseCase.getListNews()
                 .onStart {
-                    Log.e("LISTA_START", "Loading")
                     _state.postValue(State.Loading)
                 }
                 .catch {
-                    Log.e("LISTA_CATCH", it.toString())
                     _state.postValue(State.Error(it.toString()))
                 }
                 .collect {
-                    Log.e("LISTA", it.toString())
                     _state.postValue(State.Success(it))
+                }
+        }
+
+    }
+
+    fun saveNews(news: News) {
+        viewModelScope.launch {
+            newsUseCase.insertFavorite(news)
+                .onStart {
+                    _state.postValue(State.Loading)
+                }
+                .catch {
+                    _state.postValue(State.Error(it.toString()))
+                }
+                .collect {
+                    _state.postValue(State.Save)
                 }
         }
     }
 
+
+
     sealed class State{
         object Loading: State()
+        object Save: State()
         data class Success(val list: List<News>): State()
         data class Error(val error: String): State()
     }

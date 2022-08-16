@@ -1,9 +1,6 @@
 package com.example.soccernews.data.database.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.example.soccernews.data.model.News
 import kotlinx.coroutines.flow.Flow
 
@@ -14,5 +11,6 @@ interface NewsDao {
     fun findFavorites(): List<News>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(news: News)
+    fun insertNews(news: News): Long
+
 }

@@ -1,12 +1,15 @@
 package com.example.soccernews.ui.adapters
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -17,7 +20,7 @@ import com.example.soccernews.data.model.News
 class NewsAdapter(private val context: Context) :
     ListAdapter<News, NewsAdapter.ViewHolder>(DiffCallback()) {
 
-    var listenerFavorite: (View) -> Unit = {}
+    var listenerFavorite: (News) -> Unit = {}
 
     inner class ViewHolder(private val binding: NewsItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
@@ -41,8 +44,13 @@ class NewsAdapter(private val context: Context) :
                 context.startActivity(shareIntent)
             }
 
+            val favoriteColor = if(news.favorite) android.R.color.holo_red_dark else android.R.color.darker_gray
+
+            binding.imgNewsFavorite.setColorFilter(context.resources.getColor(favoriteColor))
+
+
             binding.imgNewsFavorite.setOnClickListener {
-                listenerFavorite(it)
+                listenerFavorite(news)
             }
 
             Glide.with(context)

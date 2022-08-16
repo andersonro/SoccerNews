@@ -7,9 +7,9 @@ import androidx.room.RoomDatabase
 import com.example.soccernews.data.database.dao.NewsDao
 import com.example.soccernews.data.model.News
 
-//@Database(entities = [News::class], version = 1)
+@Database(entities = [News::class], version = 1)
 abstract class AppDatabase: RoomDatabase() {
-    /*
+
     abstract fun newsDao(): NewsDao
 
     companion object {
@@ -17,9 +17,11 @@ abstract class AppDatabase: RoomDatabase() {
             return Room.databaseBuilder(
                 context.applicationContext,
                 AppDatabase::class.java,
-                "app_database"
-            ).build()
+                "app_database_news"
+            )
+                .allowMainThreadQueries()
+                .build()
         }
     }
-    */
+
 }

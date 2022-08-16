@@ -1,12 +1,14 @@
 package com.example.soccernews.ui.news
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.soccernews.data.model.News
 import com.example.soccernews.databinding.FragmentNewsBinding
 import com.example.soccernews.presentation.NewsViewModel
 import com.example.soccernews.ui.adapters.NewsAdapter
@@ -38,8 +40,10 @@ class NewsFragment : Fragment() {
         listenerNewsObserve()
         listenerNewsRefresh()
 
-        adapter.listenerFavorite = {
-            Toast.makeText(context!!, "Teste", Toast.LENGTH_SHORT).show()
+        adapter.listenerFavorite = { it ->
+            val n = News(id = it.id, title = it.title, description = it.description, image = it.image, url = it.url, favorite = !it.favorite)
+            newsViewModel.saveNews(n)
+
         }
 
         return root
@@ -64,6 +68,7 @@ class NewsFragment : Fragment() {
     }
 
     private fun listenerNewsObserve(){
+
         newsViewModel.state.observe(viewLifecycleOwner){
             when(it){
                 NewsViewModel.State.Loading -> {
@@ -76,7 +81,11 @@ class NewsFragment : Fragment() {
                     binding.srplMain.isRefreshing = false
                     adapter.submitList(it.list)
                 }
+                is NewsViewModel.State.Save -> {
+                    binding.srplMain.isRefreshing = false
+                }
             }
         }
+
     }
 }
